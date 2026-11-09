@@ -25,6 +25,10 @@ Next.js 16.4.5 (App Router, `app/` at repo root, no `src/`), React 19.3, TypeScr
 
 **This Next.js has breaking changes vs. older versions** (see `AGENTS.md`). Before writing Next.js code, read the relevant guide in `node_modules/next/dist/docs/` and heed deprecation notices.
 
+## Skills
+usa siempre /fronted-design para diseñar interfaces de usuarios.
+
+
 ## Design reference
 
 `iISLvhOSlu40WkgeVXdW_resources/resources/templates/` (untracked) holds a static prototype of the intended UI: `Arcade Vault.html`, `styles.css`, and JSX mockups per screen (`auth`, `biblioteca` = game library, `detalle` = game detail, `reproductor` = player, `salon` = leaderboard/hall, `nav`, `data` = mock data, `app`). Use it as the visual/behavioral source when building real pages; it is not part of the Next.js build.

@@ -32,3 +32,8 @@ usa siempre /fronted-design para diseñar interfaces de usuarios.
 ## Design reference
 
 `iISLvhOSlu40WkgeVXdW_resources/resources/templates/` (untracked) holds a static prototype of the intended UI: `Arcade Vault.html`, `styles.css`, and JSX mockups per screen (`auth`, `biblioteca` = game library, `detalle` = game detail, `reproductor` = player, `salon` = leaderboard/hall, `nav`, `data` = mock data, `app`). Use it as the visual/behavioral source when building real pages; it is not part of the Next.js build.
+
+
+## Playwright
+
+Guarda todos los screenshots de Playwright en el directorio `.playwright-screenshots/` (usa `filename: ".playwright-screenshots/<nombre>.png"`).

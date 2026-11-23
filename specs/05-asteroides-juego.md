@@ -1,6 +1,6 @@
 # SPEC 05 — Asteroides jugable en Arcade Vault
 
-> **Status:** aprobado
+> **Status:** implementado
 > **Depends on:** SPEC 01
 > **Date:** 2026-11-23
 > **Objective:** Portar a TypeScript el Asteroids de `references/resources/started-games/02-asteroids/` y hacerlo jugable en `/juegos/asteroides/jugar` como nuevo juego del catálogo, sin guardar puntuaciones.

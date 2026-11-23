@@ -102,6 +102,17 @@ export const GAMES: Game[] = [
     best: 24,
     plays: "4.2K",
   },
+  {
+    id: "asteroides",
+    title: "ASTEROIDES",
+    short: "Rota, propulsa y dispara entre rocas a la deriva.",
+    long: "Pilota tu nave en el vacío: rota, propulsa y dispara para destruir asteroides que se parten en fragmentos más pequeños. Tienes 3 vidas, cada oleada trae más rocas y los power-ups de triple disparo te darán ventaja. ¿Cuántos niveles sobrevivirás?",
+    cat: "SHOOTER",
+    cover: "cover-rocas",
+    color: "cyan",
+    best: 36800,
+    plays: "2.7K",
+  },
 ];
 
 export const CATS: ("TODOS" | GameCategory)[] = [

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGame, getGames } from "@/lib/games";
 import { formatBest, formatPlays } from "@/lib/games-format";
-import { seededScores } from "@/lib/scores";
+import { getLeaderboard } from "@/lib/scores";
 
 export async function generateStaticParams() {
   return (await getGames()).map((g) => ({ id: g.id }));
@@ -22,7 +22,7 @@ export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
   const game = await getGame(id);
   if (!game) notFound();
 
-  const scores = seededScores(id.length * 17 + 3, 10);
+  const scores = await getLeaderboard(id, 10);
 
   return (
     <div className="av-detail fade-in">
@@ -77,6 +77,23 @@ export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
       <aside>
         <div className="leaderboard">
           <h3>MEJORES PUNTUACIONES</h3>
+          {scores.length === 0 && (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "40px 12px",
+                color: "var(--ink-faint)",
+              }}
+            >
+              <div
+                className="pixel"
+                style={{ fontSize: 12, color: "var(--magenta)", marginBottom: 10 }}
+              >
+                SIN PUNTUACIONES AÚN
+              </div>
+              <div>Sé el primero en dejar tu marca.</div>
+            </div>
+          )}
           {scores.map((r, i) => (
             <div
               key={r.name}

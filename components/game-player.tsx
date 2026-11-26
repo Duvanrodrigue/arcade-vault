@@ -4,7 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "@/components/session-provider";
 import type { Game } from "@/lib/games";
-import type { SavedScore } from "@/lib/scores";
+
+// Temporal: se elimina en el paso 8 (Server Action saveScore).
+interface SavedScore {
+  game: string;
+  score: number;
+  name: string;
+  at: number;
+}
 
 const LIVES = 3;
 const POINTS_PER_LEVEL = 2500;

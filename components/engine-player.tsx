@@ -4,59 +4,78 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ScoreSaveForm } from "@/components/score-save-form";
 import { useSession } from "@/components/session-provider";
-import {
-  createAsteroids,
-  type AsteroidsControls,
-  type AsteroidsSnapshot,
-} from "@/lib/games/asteroids/engine";
+import type {
+  EngineControls,
+  EngineModule,
+  EngineSnapshot,
+  HudField,
+} from "@/lib/games/engine";
 import type { Game } from "@/lib/games";
+import { loadEngine } from "@/lib/games/registry";
 
-const INITIAL: AsteroidsSnapshot = {
-  score: 0,
-  lives: 3,
-  level: 1,
-  state: "playing",
-};
+const INITIAL: EngineSnapshot = { score: 0, state: "playing" };
 
-export function AsteroidsPlayer({ game }: { game: Game }) {
+// Cabecera + HUD + marco CRT ocupan ~320px: la pantalla cabe en la ventana.
+const MAX_SCREEN_H = "max(240px, calc(100svh - 320px))";
+
+function hudValue(field: HudField, snap: EngineSnapshot): string {
+  if (field.key === "score") return snap.score.toLocaleString("es-ES");
+  if (field.key === "lives") {
+    const lives = snap.lives ?? 0;
+    return lives > 0 ? "♥ ".repeat(lives).trim() : "—";
+  }
+  if (field.key === "level") return String(snap.level ?? 1).padStart(2, "0");
+  const value = snap.extra?.[field.key.slice("extra.".length)] ?? 0;
+  return value.toLocaleString("es-ES");
+}
+
+export function EnginePlayer({ game }: { game: Game }) {
   const { user } = useSession();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const controlsRef = useRef<AsteroidsControls | null>(null);
-  const [snap, setSnap] = useState<AsteroidsSnapshot>(INITIAL);
-  const [paused, setPaused] = useState(false);
+  const controlsRef = useRef<EngineControls | null>(null);
+  const [engine, setEngine] = useState<EngineModule | null>(null);
+  const [snap, setSnap] = useState<EngineSnapshot>(INITIAL);
 
   const name = user?.name ?? "INVITADO";
   const over = snap.state === "gameover";
+  const paused = !!snap.paused;
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const controls = createAsteroids(canvas, { onChange: setSnap });
-    controlsRef.current = controls;
+    let cancelled = false;
+    let controls: EngineControls | null = null;
+    loadEngine(game.id).then((mod) => {
+      const canvas = canvasRef.current;
+      if (cancelled || !canvas) return;
+      setEngine(mod);
+      controls = mod.create(canvas, { onChange: setSnap });
+      controlsRef.current = controls;
+    });
     return () => {
-      controls.destroy();
+      cancelled = true;
+      controls?.destroy();
       controlsRef.current = null;
     };
-  }, []);
+  }, [game.id]);
 
   const togglePause = () => {
     const c = controlsRef.current;
     if (!c) return;
     if (paused) c.resume();
     else c.pause();
-    setPaused(!paused);
   };
 
   const finish = () => {
     const c = controlsRef.current;
     if (!c) return;
-    // Reanuda antes: el motor en pausa no procesa ESPACIO para reiniciar.
+    // Reanuda antes: un motor en pausa no procesa la tecla de reinicio.
     c.resume();
-    setPaused(false);
     c.end();
   };
 
   const restart = () => controlsRef.current?.restart();
+
+  const width = engine?.width ?? 800;
+  const height = engine?.height ?? 600;
 
   return (
     <div className="av-player fade-in">
@@ -68,20 +87,19 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
               {name}
             </div>
           </div>
-          <div className="hud-stat">
-            <div className="l">Puntuación</div>
-            <div className="v">{snap.score.toLocaleString("es-ES")}</div>
-          </div>
-          <div className="hud-stat lives">
-            <div className="l">Vidas</div>
-            <div className="v">
-              {snap.lives > 0 ? "♥ ".repeat(snap.lives).trim() : "—"}
+          {engine?.hud.map((field) => (
+            <div
+              key={field.key}
+              className={`hud-stat${
+                field.key === "lives" || field.key === "level"
+                  ? ` ${field.key}`
+                  : ""
+              }`}
+            >
+              <div className="l">{field.label}</div>
+              <div className="v">{hudValue(field, snap)}</div>
             </div>
-          </div>
-          <div className="hud-stat level">
-            <div className="l">Nivel</div>
-            <div className="v">{String(snap.level).padStart(2, "0")}</div>
-          </div>
+          ))}
         </div>
         <div className="hud-actions">
           <button
@@ -111,12 +129,20 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
       </div>
 
       <div className="crt">
-        <div className="crt-screen">
+        <div
+          className="crt-screen"
+          style={{
+            aspectRatio: width / height,
+            maxHeight: MAX_SCREEN_H,
+            maxWidth: `calc(${MAX_SCREEN_H} * ${width / height})`,
+            marginInline: "auto",
+          }}
+        >
           <canvas
             ref={canvasRef}
-            width={800}
-            height={600}
-            aria-label="Pantalla del juego Asteroides"
+            width={width}
+            height={height}
+            aria-label={`Pantalla del juego ${game.title}`}
             style={{ display: "block", width: "100%", height: "100%" }}
           />
           {paused && !over && (

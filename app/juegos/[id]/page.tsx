@@ -1,27 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GAMES, getGame } from "@/lib/games";
-import { seededScores } from "@/lib/scores";
+import { getGame, getGames } from "@/lib/games";
+import { formatBest, formatPlays } from "@/lib/games-format";
+import { getLeaderboard } from "@/lib/scores";
 
-export function generateStaticParams() {
-  return GAMES.map((g) => ({ id: g.id }));
+export async function generateStaticParams() {
+  return (await getGames()).map((g) => ({ id: g.id }));
 }
 
 export async function generateMetadata(
   props: PageProps<"/juegos/[id]">,
 ): Promise<Metadata> {
   const { id } = await props.params;
-  const game = getGame(id);
+  const game = await getGame(id);
   return { title: game ? `${game.title} · Arcade Vault` : "Juego no encontrado" };
 }
 
 export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
   const { id } = await props.params;
-  const game = getGame(id);
+  const game = await getGame(id);
   if (!game) notFound();
 
-  const scores = seededScores(id.length * 17 + 3, 10);
+  const scores = await getLeaderboard(id, 10);
 
   return (
     <div className="av-detail fade-in">
@@ -41,7 +42,7 @@ export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
           <div className="stat-strip">
             <div>
               <div className="l">Partidas</div>
-              <div className="v">{game.plays}</div>
+              <div className="v">{formatPlays(game.plays)}</div>
             </div>
             <div>
               <div className="l">Mejor global</div>
@@ -49,7 +50,7 @@ export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
                 className="v"
                 style={{ color: "var(--magenta)", textShadow: "0 0 6px rgba(255,0,110,0.5)" }}
               >
-                {game.best.toLocaleString("es-ES")}
+                {formatBest(game.best)}
               </div>
             </div>
             <div>
@@ -76,6 +77,23 @@ export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
       <aside>
         <div className="leaderboard">
           <h3>MEJORES PUNTUACIONES</h3>
+          {scores.length === 0 && (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "40px 12px",
+                color: "var(--ink-faint)",
+              }}
+            >
+              <div
+                className="pixel"
+                style={{ fontSize: 12, color: "var(--magenta)", marginBottom: 10 }}
+              >
+                SIN PUNTUACIONES AÚN
+              </div>
+              <div>Sé el primero en dejar tu marca.</div>
+            </div>
+          )}
           {scores.map((r, i) => (
             <div
               key={r.name}

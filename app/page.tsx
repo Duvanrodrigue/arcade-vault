@@ -4,7 +4,7 @@ import { FeatureIcon } from "@/components/feature-icon";
 import { FloatingSilhouettes } from "@/components/floating-silhouettes";
 import { MiniCard } from "@/components/mini-card";
 import { Reveal } from "@/components/reveal";
-import { GAMES } from "@/lib/games";
+import { getGames } from "@/lib/games";
 import {
   FAQ,
   FEATURES,
@@ -36,7 +36,8 @@ function SectionHead({
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const games = await getGames();
   return (
     <div className="home fade-in">
       {/* HERO */}
@@ -93,7 +94,7 @@ export default function HomePage() {
       <Reveal className="home-section">
         <SectionHead kicker="// 02" color="cyan" title="JUEGOS DISPONIBLES AHORA" />
         <div className="mini-rail">
-          {GAMES.slice(0, 6).map((g) => (
+          {games.slice(0, 6).map((g) => (
             <MiniCard key={g.id} game={g} />
           ))}
         </div>

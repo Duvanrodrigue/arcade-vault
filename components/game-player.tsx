@@ -2,31 +2,20 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ScoreSaveForm } from "@/components/score-save-form";
 import { useSession } from "@/components/session-provider";
 import type { Game } from "@/lib/games";
-import type { SavedScore } from "@/lib/scores";
 
 const LIVES = 3;
 const POINTS_PER_LEVEL = 2500;
-
-function saveScore(entry: Omit<SavedScore, "at">) {
-  try {
-    const raw = localStorage.getItem("av_scores");
-    const all: SavedScore[] = raw ? JSON.parse(raw) : [];
-    all.push({ ...entry, at: Date.now() });
-    localStorage.setItem("av_scores", JSON.stringify(all));
-  } catch {}
-}
 
 export function GamePlayer({ game }: { game: Game }) {
   const { user } = useSession();
   const [score, setScore] = useState(0);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
-  const [typedName, setTypedName] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
 
-  const name = typedName ?? user?.name ?? "INVITADO";
+  const name = user?.name ?? "INVITADO";
   const level = 1 + Math.floor(score / POINTS_PER_LEVEL);
 
   useEffect(() => {
@@ -42,7 +31,6 @@ export function GamePlayer({ game }: { game: Game }) {
     setScore(0);
     setPaused(false);
     setOver(false);
-    setSaved(false);
   };
 
   return (
@@ -131,28 +119,7 @@ export function GamePlayer({ game }: { game: Game }) {
             <h2>FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{score.toLocaleString("es-ES")}</div>
-            {!saved ? (
-              <div className="input-row">
-                <input
-                  value={name}
-                  onChange={(e) => setTypedName(e.target.value.toUpperCase().slice(0, 10))}
-                  placeholder="TUS INICIALES"
-                  aria-label="Tus iniciales"
-                />
-                <button
-                  type="button"
-                  className="btn yellow"
-                  onClick={() => {
-                    saveScore({ game: game.id, score, name });
-                    setSaved(true);
-                  }}
-                >
-                  GUARDAR PUNTUACIÓN
-                </button>
-              </div>
-            ) : (
-              <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
-            )}
+            <ScoreSaveForm gameId={game.id} score={score} />
             <div className="actions">
               <button type="button" className="btn" onClick={restart}>
                 JUGAR DE NUEVO

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { ScoreSaveForm } from "@/components/score-save-form";
 import { useSession } from "@/components/session-provider";
 import {
   createAsteroids,
@@ -155,6 +156,7 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
             <h2>FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{snap.score.toLocaleString("es-ES")}</div>
+            <ScoreSaveForm gameId={game.id} score={snap.score} />
             <div className="actions">
               <button type="button" className="btn" onClick={restart}>
                 JUGAR DE NUEVO

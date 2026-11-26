@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GAMES, getGame } from "@/lib/games";
+import { getGame, getGames } from "@/lib/games";
+import { formatBest, formatPlays } from "@/lib/games-format";
 import { seededScores } from "@/lib/scores";
 
-export function generateStaticParams() {
-  return GAMES.map((g) => ({ id: g.id }));
+export async function generateStaticParams() {
+  return (await getGames()).map((g) => ({ id: g.id }));
 }
 
 export async function generateMetadata(
   props: PageProps<"/juegos/[id]">,
 ): Promise<Metadata> {
   const { id } = await props.params;
-  const game = getGame(id);
+  const game = await getGame(id);
   return { title: game ? `${game.title} · Arcade Vault` : "Juego no encontrado" };
 }
 
 export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
   const { id } = await props.params;
-  const game = getGame(id);
+  const game = await getGame(id);
   if (!game) notFound();
 
   const scores = seededScores(id.length * 17 + 3, 10);
@@ -41,7 +42,7 @@ export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
           <div className="stat-strip">
             <div>
               <div className="l">Partidas</div>
-              <div className="v">{game.plays}</div>
+              <div className="v">{formatPlays(game.plays)}</div>
             </div>
             <div>
               <div className="l">Mejor global</div>
@@ -49,7 +50,7 @@ export default async function GameDetailPage(props: PageProps<"/juegos/[id]">) {
                 className="v"
                 style={{ color: "var(--magenta)", textShadow: "0 0 6px rgba(255,0,110,0.5)" }}
               >
-                {game.best.toLocaleString("es-ES")}
+                {formatBest(game.best)}
               </div>
             </div>
             <div>

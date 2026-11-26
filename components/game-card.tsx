@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, type MouseEvent } from "react";
 import type { Game } from "@/lib/games";
+import { formatBest } from "@/lib/games-format";
 
 export function GameCard({ game }: { game: Game }) {
   const router = useRouter();
@@ -45,7 +46,7 @@ export function GameCard({ game }: { game: Game }) {
         <div className="row">
           <div className="score-badge">
             <span>MEJOR PUNTUACIÓN</span>
-            <b>{game.best.toLocaleString("es-ES")}</b>
+            <b>{formatBest(game.best)}</b>
           </div>
           <Link
             href={href}

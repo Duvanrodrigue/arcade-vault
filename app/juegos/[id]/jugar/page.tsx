@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AsteroidsPlayer } from "@/components/asteroids-player";
+import { EnginePlayer } from "@/components/engine-player";
 import { GamePlayer } from "@/components/game-player";
 import { getGame, getGames } from "@/lib/games";
+import { hasEngine } from "@/lib/games/registry";
 
 export async function generateStaticParams() {
   return (await getGames()).map((g) => ({ id: g.id }));
@@ -24,6 +25,9 @@ export default async function PlayPage(props: PageProps<"/juegos/[id]/jugar">) {
   const { id } = await props.params;
   const game = await getGame(id);
   if (!game) notFound();
-  if (game.id === "asteroides") return <AsteroidsPlayer game={game} />;
-  return <GamePlayer game={game} />;
+  return hasEngine(game.id) ? (
+    <EnginePlayer game={game} />
+  ) : (
+    <GamePlayer game={game} />
+  );
 }

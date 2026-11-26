@@ -1,27 +1,13 @@
 // Port fiel a TypeScript de references/resources/started-games/02-asteroids/game.js.
-// Todo el estado vive en el cierre de createAsteroids (sin globales de módulo).
+// Todo el estado vive en el cierre de create (sin globales de módulo).
 
-export type AsteroidsState = "playing" | "dead" | "gameover";
-
-export interface AsteroidsSnapshot {
-  score: number;
-  lives: number;
-  level: number;
-  state: AsteroidsState;
-}
-
-export interface AsteroidsCallbacks {
-  // Se llama solo cuando cambia algún campo, no en cada frame.
-  onChange(snapshot: AsteroidsSnapshot): void;
-}
-
-export interface AsteroidsControls {
-  pause(): void;
-  resume(): void;
-  end(): void; // fuerza state = "gameover"
-  restart(): void; // equivale al initGame() original
-  destroy(): void; // cancela RAF y quita listeners
-}
+import type {
+  EngineCallbacks,
+  EngineControls,
+  EngineModule,
+  EngineSnapshot,
+  EngineState,
+} from "@/lib/games/engine";
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 const W = 800;
@@ -363,10 +349,10 @@ function drawOverlay(
 }
 
 // ── Motor ─────────────────────────────────────────────────────────────────────
-export function createAsteroids(
+function create(
   canvas: HTMLCanvasElement,
-  callbacks: AsteroidsCallbacks,
-): AsteroidsControls {
+  callbacks: EngineCallbacks,
+): EngineControls {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas 2D no disponible");
 
@@ -401,7 +387,7 @@ export function createAsteroids(
   let score = 0;
   let lives = 3;
   let level = 1;
-  let state: AsteroidsState = "playing";
+  let state: EngineState = "playing";
   let deadTimer = 0;
   let powerUpSpawned = false;
   let killsSinceSpawn = 0;
@@ -410,7 +396,7 @@ export function createAsteroids(
   let destroyed = false;
   let rafId = 0;
   let lastTime: number | null = null;
-  let last: AsteroidsSnapshot | null = null;
+  let last: EngineSnapshot | null = null;
 
   function emit() {
     if (
@@ -418,10 +404,11 @@ export function createAsteroids(
       last.score === score &&
       last.lives === lives &&
       last.level === level &&
-      last.state === state
+      last.state === state &&
+      last.paused === paused
     )
       return;
-    last = { score, lives, level, state };
+    last = { score, lives, level, state, paused };
     callbacks.onChange(last);
   }
 
@@ -620,6 +607,7 @@ export function createAsteroids(
   return {
     pause() {
       paused = true;
+      emit();
     },
     resume() {
       if (!paused) return;
@@ -627,6 +615,7 @@ export function createAsteroids(
       lastTime = null; // evita un dt grande al reanudar
       // Descarta pulsaciones acumuladas durante la pausa
       for (const k of Object.keys(justPressed)) justPressed[k] = false;
+      emit();
     },
     end() {
       if (state === "gameover") return;
@@ -648,3 +637,16 @@ export function createAsteroids(
     },
   };
 }
+
+const engine: EngineModule = {
+  width: W,
+  height: H,
+  hud: [
+    { key: "score", label: "PUNTUACIÓN" },
+    { key: "lives", label: "VIDAS" },
+    { key: "level", label: "NIVEL" },
+  ],
+  create,
+};
+
+export default engine;

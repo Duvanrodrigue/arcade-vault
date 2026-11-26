@@ -4,14 +4,11 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ScoreSaveForm } from "@/components/score-save-form";
 import { useSession } from "@/components/session-provider";
-import {
-  createAsteroids,
-  type AsteroidsControls,
-  type AsteroidsSnapshot,
-} from "@/lib/games/asteroids/engine";
+import asteroids from "@/lib/games/asteroids/engine";
+import type { EngineControls, EngineSnapshot } from "@/lib/games/engine";
 import type { Game } from "@/lib/games";
 
-const INITIAL: AsteroidsSnapshot = {
+const INITIAL: EngineSnapshot = {
   score: 0,
   lives: 3,
   level: 1,
@@ -21,8 +18,8 @@ const INITIAL: AsteroidsSnapshot = {
 export function AsteroidsPlayer({ game }: { game: Game }) {
   const { user } = useSession();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const controlsRef = useRef<AsteroidsControls | null>(null);
-  const [snap, setSnap] = useState<AsteroidsSnapshot>(INITIAL);
+  const controlsRef = useRef<EngineControls | null>(null);
+  const [snap, setSnap] = useState<EngineSnapshot>(INITIAL);
   const [paused, setPaused] = useState(false);
 
   const name = user?.name ?? "INVITADO";
@@ -31,7 +28,7 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const controls = createAsteroids(canvas, { onChange: setSnap });
+    const controls = asteroids.create(canvas, { onChange: setSnap });
     controlsRef.current = controls;
     return () => {
       controls.destroy();
@@ -75,12 +72,12 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
           <div className="hud-stat lives">
             <div className="l">Vidas</div>
             <div className="v">
-              {snap.lives > 0 ? "♥ ".repeat(snap.lives).trim() : "—"}
+              {(snap.lives ?? 0) > 0 ? "♥ ".repeat(snap.lives ?? 0).trim() : "—"}
             </div>
           </div>
           <div className="hud-stat level">
             <div className="l">Nivel</div>
-            <div className="v">{String(snap.level).padStart(2, "0")}</div>
+            <div className="v">{String(snap.level ?? 1).padStart(2, "0")}</div>
           </div>
         </div>
         <div className="hud-actions">

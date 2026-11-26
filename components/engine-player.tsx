@@ -15,6 +15,9 @@ import { loadEngine } from "@/lib/games/registry";
 
 const INITIAL: EngineSnapshot = { score: 0, state: "playing" };
 
+// Cabecera + HUD + marco CRT ocupan ~320px: la pantalla cabe en la ventana.
+const MAX_SCREEN_H = "max(240px, calc(100svh - 320px))";
+
 function hudValue(field: HudField, snap: EngineSnapshot): string {
   if (field.key === "score") return snap.score.toLocaleString("es-ES");
   if (field.key === "lives") {
@@ -126,7 +129,15 @@ export function EnginePlayer({ game }: { game: Game }) {
       </div>
 
       <div className="crt">
-        <div className="crt-screen" style={{ aspectRatio: width / height }}>
+        <div
+          className="crt-screen"
+          style={{
+            aspectRatio: width / height,
+            maxHeight: MAX_SCREEN_H,
+            maxWidth: `calc(${MAX_SCREEN_H} * ${width / height})`,
+            marginInline: "auto",
+          }}
+        >
           <canvas
             ref={canvasRef}
             width={width}

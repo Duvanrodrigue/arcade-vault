@@ -2,6 +2,7 @@ import type { EngineModule } from "@/lib/games/engine";
 
 const ENGINES: Record<string, () => Promise<{ default: EngineModule }>> = {
   asteroides: () => import("@/lib/games/asteroids/engine"),
+  tetris: () => import("@/lib/games/tetris/engine"),
 };
 
 export function hasEngine(id: string): boolean {

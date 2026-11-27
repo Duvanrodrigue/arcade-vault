@@ -6,7 +6,7 @@ Estado: `pendiente` (sin skins), `parcial` (faltan skins o fallan el contraste),
 
 | ID | Título | Estado | neon | retro | clasico | Contraste mín. (HUD / piezas) | Fecha | Paleta |
 | -- | ------ | ------ | ---- | ----- | ------- | ----------------------------- | ----- | ------ |
-| `asteroides` | ASTEROIDES | pendiente | - | - | - | - | - | - |
+| `asteroides` | ASTEROIDES | completo | ok | ok | ok | neon 6.28 / 5.15 · retro 7.10 / 5.29 · clasico 8.59 / 5.57 | 2026-11-27 | neon: cyan/magenta/yellow/green con glow · retro: ámbar CRT + scanlines · clasico: azul/arena/amarillo/verde sólidos |
 | `tetris` | TETRIS | pendiente | - | - | - | - | - | - |
 
 Solo se listan juegos jugables (con motor en `lib/games/registry.ts`). Los simulados se añaden cuando tengan motor.
@@ -15,4 +15,4 @@ Solo se listan juegos jugables (con motor en `lib/games/registry.ts`). Los simul
 
 Una línea por ejecución: `fecha — id — skins aplicados — resultado`.
 
-_Sin ejecuciones todavía._
+- 2026-11-27 — asteroides — neon, retro, clasico — completo (contrato `lib/games/skins.ts` creado; contraste medido; Playwright: cambio de skin en mitad de partida y en pausa sin reinicio).

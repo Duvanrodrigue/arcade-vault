@@ -64,6 +64,8 @@ usa siempre /fronted-design para diseñar interfaces de usuarios.
 
 Para añadir un juego jugable nuevo (de `references/resources/started-games/` o diseño propio) usa `/add-game <carpeta-de-referencia|descripción>`: lee la skill `/spec` y las specs existentes como referencia y genera la spec en `specs/`; luego se implementa con `/spec-impl`. La receta de integración (contrato de motor, registro, checklist de port) está en `.claude/skills/add-game/integration-recipe.md`. Juegos de referencia: `02-asteroids`, `03-tetris`, `04-arkanoid` (Arkanoid aún sin spec ni motor).
 
+Para decidir qué juego añadir a continuación usa el agente `game-planner` (`.claude/agents/game-planner.md`): puntúa candidatos, recomienda uno y entrega la línea `/add-game ...`. Su memoria de sugerencias vive en `.claude/agent-memory/game-planner/` y mantiene además el todo `references/resources/game-suggestions-todo.md` (propuestos, aceptados, implementados, rechazados); solo escribe en esos dos sitios.
+
 ## Hooks
 
 `.claude/settings.json` runs `.claude/hooks/format-lint.mjs` after every Write/Edit (Prettier + ESLint on the edited file; ignores `node_modules`, `.next`, `references`, `.git`).

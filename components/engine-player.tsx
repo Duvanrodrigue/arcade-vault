@@ -12,8 +12,34 @@ import type {
 } from "@/lib/games/engine";
 import type { Game } from "@/lib/games";
 import { loadEngine } from "@/lib/games/registry";
+import {
+  DEFAULT_SKIN,
+  SKIN_IDS,
+  SKIN_LABELS,
+  isSkinId,
+  type SkinId,
+} from "@/lib/games/skins";
 
 const INITIAL: EngineSnapshot = { score: 0, state: "playing" };
+
+const skinKey = (gameId: string) => `av-skin:${gameId}`;
+
+function readSkin(gameId: string): SkinId {
+  try {
+    const stored = window.localStorage.getItem(skinKey(gameId));
+    return isSkinId(stored) ? stored : DEFAULT_SKIN;
+  } catch {
+    return DEFAULT_SKIN;
+  }
+}
+
+function writeSkin(gameId: string, skin: SkinId) {
+  try {
+    window.localStorage.setItem(skinKey(gameId), skin);
+  } catch {
+    // Sin almacenamiento (modo privado): el skin dura solo esta visita.
+  }
+}
 
 // Cabecera + HUD + marco CRT ocupan ~320px: la pantalla cabe en la ventana.
 const MAX_SCREEN_H = "max(240px, calc(100svh - 320px))";
@@ -35,6 +61,7 @@ export function EnginePlayer({ game }: { game: Game }) {
   const controlsRef = useRef<EngineControls | null>(null);
   const [engine, setEngine] = useState<EngineModule | null>(null);
   const [snap, setSnap] = useState<EngineSnapshot>(INITIAL);
+  const [skin, setSkin] = useState<SkinId>(DEFAULT_SKIN);
 
   const name = user?.name ?? "INVITADO";
   const over = snap.state === "gameover";
@@ -47,7 +74,13 @@ export function EnginePlayer({ game }: { game: Game }) {
       const canvas = canvasRef.current;
       if (cancelled || !canvas) return;
       setEngine(mod);
-      controls = mod.create(canvas, { onChange: setSnap });
+      const initialSkin = mod.skins ? readSkin(game.id) : DEFAULT_SKIN;
+      setSkin(initialSkin);
+      controls = mod.create(
+        canvas,
+        { onChange: setSnap },
+        { skin: initialSkin },
+      );
       controlsRef.current = controls;
     });
     return () => {
@@ -73,6 +106,15 @@ export function EnginePlayer({ game }: { game: Game }) {
   };
 
   const restart = () => controlsRef.current?.restart();
+
+  // Solo cambia la paleta del canvas: no toca la partida ni el guardado.
+  const changeSkin = (id: SkinId) => {
+    setSkin(id);
+    writeSkin(game.id, id);
+    controlsRef.current?.setSkin?.(id);
+  };
+
+  const skins = engine?.skins;
 
   const width = engine?.width ?? 800;
   const height = engine?.height ?? 600;
@@ -127,6 +169,48 @@ export function EnginePlayer({ game }: { game: Game }) {
           </Link>
         </div>
       </div>
+
+      {skins && (
+        <div
+          className="av-chips"
+          role="radiogroup"
+          aria-label="Skin de la pantalla"
+          style={{ justifyContent: "flex-end", marginBottom: 14 }}
+        >
+          {SKIN_IDS.map((id) => {
+            const pal = skins[id];
+            return (
+              <button
+                key={id}
+                type="button"
+                role="radio"
+                aria-checked={skin === id}
+                className={`chip${skin === id ? " active" : ""}`}
+                onClick={(e) => {
+                  e.currentTarget.blur(); // ESPACIO no debe reactivar el chip
+                  changeSkin(id);
+                }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    display: "inline-flex",
+                    width: 18,
+                    height: 10,
+                    border: `1px solid ${pal.hud}`,
+                    background: pal.bg,
+                  }}
+                >
+                  <span style={{ flex: 1, background: pal.hud }} />
+                  <span style={{ flex: 1, background: pal.accent }} />
+                </span>
+                {SKIN_LABELS[id]}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="crt">
         <div

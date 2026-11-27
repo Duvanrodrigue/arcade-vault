@@ -1,3 +1,5 @@
+import type { SkinId, SkinPalette } from "@/lib/games/skins";
+
 export type EngineState = "playing" | "dead" | "gameover";
 
 export interface EngineSnapshot {
@@ -25,6 +27,15 @@ export interface EngineControls {
   restart(): void;
   /** Cancela RAF y quita listeners. */
   destroy(): void;
+  /**
+   * Cambia la paleta activa sin reiniciar la partida.
+   * Opcional hasta que todos los motores registrados exporten skins.
+   */
+  setSkin?(id: SkinId): void;
+}
+
+export interface EngineCreateOptions {
+  skin?: SkinId;
 }
 
 export interface HudField {
@@ -32,9 +43,18 @@ export interface HudField {
   label: string;
 }
 
-export interface EngineModule {
+export interface EngineModule<P extends SkinPalette = SkinPalette> {
   width: number;
   height: number;
   hud: HudField[];
-  create(canvas: HTMLCanvasElement, cb: EngineCallbacks): EngineControls;
+  /**
+   * Paletas neon / retro / clasico del juego (lib/games/<id>/skins.ts).
+   * Opcional hasta que todos los motores registrados las exporten.
+   */
+  skins?: Record<SkinId, P>;
+  create(
+    canvas: HTMLCanvasElement,
+    cb: EngineCallbacks,
+    opts?: EngineCreateOptions,
+  ): EngineControls;
 }

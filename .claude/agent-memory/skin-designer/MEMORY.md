@@ -1,0 +1,3 @@
+- [Contrato de skins y estado](project_skin_contract.md) — skins/setSkin opcionales hasta migrar Tetris; asteroides completo 2026-11-27, tetris pendiente
+- [Auditoría](audit.md) — última tabla juego × skin y contrastes mínimos medidos
+- Preferencias de paleta del usuario: ninguna expresada aún (retro en ámbar elegido por defecto en asteroides)

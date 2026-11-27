@@ -68,6 +68,7 @@ Cada juego exporta un `EngineModule` desde `lib/games/<id>/engine.ts`. Asteroide
 - Mismas constantes, física y puntuación que el original (port fiel salvo decisión contraria).
 - Assets en `public/games/<id>/` con rutas absolutas; cargarlos dentro de `create` y esperar a que estén listos.
 - Sonido solo si la spec lo incluye explícitamente.
+- El motor exporta `skins` con `neon`, `retro` y `clasico` válidos en oscuro (paletas en `lib/games/<id>/skins.ts` sobre `SkinPalette` de `lib/games/skins.ts`; `create(canvas, cb, { skin })` y `setSkin(id)` sin reiniciar la partida; sin colores literales en el render). Ver agente `skin-designer`.
 
 ## 4. Catálogo (Supabase)
 

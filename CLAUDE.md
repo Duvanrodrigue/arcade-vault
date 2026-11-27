@@ -68,6 +68,8 @@ Para decidir qué juego añadir a continuación usa el agente `game-planner` (`.
 
 Para generar varios juegos a partir de un tema usa el agente `game-jam` (`.claude/agents/game-jam.md`): recibe un tema, diseña 3 juegos originales y crea `specs/game-jam/<game-id>/` con al menos 2 specs en `borrador` por juego, con la forma de SPEC 07. Solo escribe specs.
 
+Para dar a un juego jugable los skins `neon`, `retro` y `clasico` (legibles en modo oscuro) usa el agente `skin-designer` (`.claude/agents/skin-designer.md`): trabaja de un juego a la vez, solo el que le indiques (`@skin-designer <id>`); crea el contrato de skins (`lib/games/skins.ts`), migra los colores fijos a paletas del juego y verifica contraste y render con Playwright. Qué juegos ya tienen skins está en `references/resources/game-with-themes.md`. Su memoria vive en `.claude/agent-memory/skin-designer/`.
+
 ## Hooks
 
 `.claude/settings.json` runs `.claude/hooks/format-lint.mjs` after every Write/Edit (Prettier + ESLint on the edited file; ignores `node_modules`, `.next`, `references`, `.git`).

@@ -66,6 +66,8 @@ Para añadir un juego jugable nuevo (de `references/resources/started-games/` o 
 
 Para decidir qué juego añadir a continuación usa el agente `game-planner` (`.claude/agents/game-planner.md`): puntúa candidatos, recomienda uno y entrega la línea `/add-game ...`. Su memoria de sugerencias vive en `.claude/agent-memory/game-planner/` y mantiene además el todo `references/resources/game-suggestions-todo.md` (propuestos, aceptados, implementados, rechazados); solo escribe en esos dos sitios.
 
+Para generar varios juegos a partir de un tema usa el agente `game-jam` (`.claude/agents/game-jam.md`): recibe un tema, diseña 3 juegos originales y crea `specs/game-jam/<game-id>/` con al menos 2 specs en `borrador` por juego, con la forma de SPEC 07. Solo escribe specs.
+
 ## Hooks
 
 `.claude/settings.json` runs `.claude/hooks/format-lint.mjs` after every Write/Edit (Prettier + ESLint on the edited file; ignores `node_modules`, `.next`, `references`, `.git`).
